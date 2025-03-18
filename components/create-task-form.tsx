@@ -192,7 +192,7 @@ export default function CreateTaskForm({ onTaskCreated }: CreateTaskFormProps) {
             </TabsList>
           </div>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="w-96">
             <TabsContent value="basic" className="m-0">
               <CardContent className="pt-4">
                 <div className="space-y-4">

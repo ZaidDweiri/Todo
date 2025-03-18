@@ -4,38 +4,39 @@ import { getCurrentUserId, isAuthenticated } from "@/lib/auth";
 
 /**
  * GET /api/tasks/[id]
- * 
- * Fetches a specific task by ID. Ensures the task belongs to the current user for security.
+ *
+ * Fetch a specific task by ID.
+ * - Ensures the task belongs to the authenticated user for security.
  */
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, context: { params: { id: string } }) {
   try {
-    // Check if the user is authenticated
+    // Step 1: Check if the user is authenticated
     if (!isAuthenticated()) {
       return NextResponse.json({ error: "You must be logged in to view a task" }, { status: 401 });
     }
 
-    // Get the task ID from the URL parameters
-    const taskId = params.id;
+    // Step 2: Get the task ID from the URL parameters
+    const taskId = context.params.id;
 
-    // Get the current user ID from authentication
+    // Step 3: Get the current user's ID
     const userId = await getCurrentUserId();
 
-    // Fetch the task from the database
+    // Step 4: Fetch the task from the database
     const task = await prisma.task.findUnique({
       where: { id: taskId },
     });
 
-    // If task is not found, return an error
+    // Step 5: Handle task not found
     if (!task) {
       return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
 
-    // Ensure the task belongs to the current user
+    // Step 6: Ensure the task belongs to the authenticated user
     if (task.userId !== userId) {
       return NextResponse.json({ error: "You don't have permission to view this task" }, { status: 403 });
     }
 
-    // Return the task data
+    // Step 7: Return the task data
     return NextResponse.json(task);
   } catch (error) {
     console.error("Error fetching task:", error);
@@ -45,45 +46,48 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 /**
  * PUT /api/tasks/[id]
- * 
- * Updates a specific task by ID. Ensures the task belongs to the current user for security.
+ *
+ * Update a specific task by ID.
+ * - Ensures the task belongs to the authenticated user for security.
  */
-export async function PUT(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+export async function PUT(request: NextRequest, context: { params: { id: string } }) {
   try {
     // Step 1: Check if the user is authenticated
     if (!isAuthenticated()) {
-      return NextResponse.json({ error: 'You must be logged in to update a task' }, { status: 401 });
+      return NextResponse.json({ error: "You must be logged in to update a task" }, { status: 401 });
     }
 
-    // Step 2: Await the params object to access its properties
-    const { id: taskId } = await context.params;
+    // Step 2: Get the task ID from the URL parameters
+    const taskId = context.params.id;
 
-    // Step 3: Get the current user ID from authentication
+    // Step 3: Get the current user's ID
     const userId = await getCurrentUserId();
 
-    // Step 4: Check if the task exists and belongs to the user
+    // Step 4: Fetch the task from the database
     const existingTask = await prisma.task.findUnique({
       where: { id: taskId },
     });
 
+    // Step 5: Handle task not found
     if (!existingTask) {
-      return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
 
+    // Step 6: Ensure the task belongs to the authenticated user
     if (existingTask.userId !== userId) {
       return NextResponse.json({ error: "You don't have permission to update this task" }, { status: 403 });
     }
 
-    // Step 5: Parse the request body to get updated task data
+    // Step 7: Parse the request body for updates
     const body = await request.json();
 
-    // Step 6: Validate the status field if provided
-    const validStatuses = ['pending', 'in-progress', 'completed'];
+    // Step 8: Validate the status field if provided
+    const validStatuses = ["pending", "in-progress", "completed"];
     if (body.status && !validStatuses.includes(body.status)) {
-      return NextResponse.json({ error: 'Status must be one of: pending, in-progress, completed' }, { status: 400 });
+      return NextResponse.json({ error: "Status must be one of: pending, in-progress, completed" }, { status: 400 });
     }
 
-    // Step 7: Update the task in the database
+    // Step 9: Update the task in the database
     const updatedTask = await prisma.task.update({
       where: { id: taskId },
       data: {
@@ -93,52 +97,54 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
       },
     });
 
-    // Step 8: Return the updated task
+    // Step 10: Return the updated task
     return NextResponse.json(updatedTask);
   } catch (error) {
-    // Step 9: Handle any errors
-    console.error('Error updating task:', error);
-    return NextResponse.json({ error: 'Failed to update task' }, { status: 500 });
+    console.error("Error updating task:", error);
+    return NextResponse.json({ error: "Failed to update task" }, { status: 500 });
   }
 }
 
 /**
  * DELETE /api/tasks/[id]
- * 
- * Deletes a specific task by ID. Ensures the task belongs to the current user for security.
+ *
+ * Delete a specific task by ID.
+ * - Ensures the task belongs to the authenticated user for security.
  */
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, context: { params: { id: string } }) {
   try {
-    // Check if the user is authenticated
+    // Step 1: Check if the user is authenticated
     if (!isAuthenticated()) {
       return NextResponse.json({ error: "You must be logged in to delete a task" }, { status: 401 });
     }
 
-    // Get the task ID from the URL parameters
-    const taskId = params.id;
+    // Step 2: Get the task ID from the URL parameters
+    const taskId = context.params.id;
 
-    // Get the current user ID
+    // Step 3: Get the current user's ID
     const userId = await getCurrentUserId();
 
-    // Check if the task exists and belongs to the user
+    // Step 4: Fetch the task from the database
     const existingTask = await prisma.task.findUnique({
       where: { id: taskId },
     });
 
+    // Step 5: Handle task not found
     if (!existingTask) {
       return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
 
+    // Step 6: Ensure the task belongs to the authenticated user
     if (existingTask.userId !== userId) {
       return NextResponse.json({ error: "You don't have permission to delete this task" }, { status: 403 });
     }
 
-    // Delete the task from the database
+    // Step 7: Delete the task from the database
     await prisma.task.delete({
       where: { id: taskId },
     });
 
-    // Return a success message
+    // Step 8: Return a success message
     return NextResponse.json({ message: "Task deleted successfully" }, { status: 200 });
   } catch (error) {
     console.error("Error deleting task:", error);
