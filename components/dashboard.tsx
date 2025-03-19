@@ -48,12 +48,15 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-background">
+    <div className="min-h-screen bg-background">
       <header className="border-b">
-        <div className="container flex h-16 items-center px-4 md:px-6">
-          <h1 className="text-2xl font-bold">Task Manager</h1>
+      <div className="container flex h-16 items-center justify-between px-4 md:px-6">
+        <h1 className="text-2xl font-bold flex-1">Task Manager</h1>
+        <div className="flex items-center justify-end">
           <UserButton afterSignOutUrl="/sign-in" />
         </div>
+      </div>
+
       </header>
       <main className="container px-4 py-6 w-full md:py-8">
         <div className="grid gap-6 md:grid-cols-[1fr_300px]  w-full lg:grid-cols-[1fr_350px]">

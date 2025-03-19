@@ -4,19 +4,19 @@ import { getCurrentUserId, isAuthenticated } from "@/lib/auth";
 
 /**
  * GET /api/tasks/[id]
- *
+ * 
  * Fetch a specific task by ID.
  * - Ensures the task belongs to the authenticated user for security.
  */
-export async function GET(request: NextRequest, context: { params: { id: string } }) {
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
-    // Step 1: Check if the user is authenticated
+    // Step 1: Await params to access properties
+    const { id: taskId } = await context.params;
+
+    // Step 2: Check if the user is authenticated
     if (!isAuthenticated()) {
       return NextResponse.json({ error: "You must be logged in to view a task" }, { status: 401 });
     }
-
-    // Step 2: Get the task ID from the URL parameters
-    const taskId = context.params.id;
 
     // Step 3: Get the current user's ID
     const userId = await getCurrentUserId();
@@ -46,19 +46,19 @@ export async function GET(request: NextRequest, context: { params: { id: string 
 
 /**
  * PUT /api/tasks/[id]
- *
+ * 
  * Update a specific task by ID.
  * - Ensures the task belongs to the authenticated user for security.
  */
-export async function PUT(request: NextRequest, context: { params: { id: string } }) {
+export async function PUT(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
-    // Step 1: Check if the user is authenticated
+    // Step 1: Await params to access properties
+    const { id: taskId } = await context.params;
+
+    // Step 2: Check if the user is authenticated
     if (!isAuthenticated()) {
       return NextResponse.json({ error: "You must be logged in to update a task" }, { status: 401 });
     }
-
-    // Step 2: Get the task ID from the URL parameters
-    const taskId = context.params.id;
 
     // Step 3: Get the current user's ID
     const userId = await getCurrentUserId();
@@ -107,19 +107,19 @@ export async function PUT(request: NextRequest, context: { params: { id: string 
 
 /**
  * DELETE /api/tasks/[id]
- *
+ * 
  * Delete a specific task by ID.
  * - Ensures the task belongs to the authenticated user for security.
  */
-export async function DELETE(request: NextRequest, context: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
-    // Step 1: Check if the user is authenticated
+    // Step 1: Await params to access properties
+    const { id: taskId } = await context.params;
+
+    // Step 2: Check if the user is authenticated
     if (!isAuthenticated()) {
       return NextResponse.json({ error: "You must be logged in to delete a task" }, { status: 401 });
     }
-
-    // Step 2: Get the task ID from the URL parameters
-    const taskId = context.params.id;
 
     // Step 3: Get the current user's ID
     const userId = await getCurrentUserId();
